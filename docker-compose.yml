@@ -43,9 +43,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
   proxy:
-    depends_on: 
-      - api
-      - client
     restart: always
     build:
       dockerfile: Dockerfile.dev
