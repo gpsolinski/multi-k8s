@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web  # this can be any key-value pair, e.g. partOfApp: client (but it has to match the matchLabels selector in the deployment spec)
+    spec:
+      containers:
+        - name: client
+          image: gpsolinski/multi-client
+          ports:
+            - containerPort: 3000
