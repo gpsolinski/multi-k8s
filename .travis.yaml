@@ -1,14 +1,39 @@
 sudo: required
 services:
   - docker
+env:
+  global:
+    # Use git sha to tag the current images
+    - SHA=$(git rev-parse HEAD)
+    # Turn off GC CLI prompt
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
   # Decrypt the service account credentials file
   - openssl aes-256-cbc -K $encrypted_0c35eebf403c_key -iv $encrypted_0c35eebf403c_iv -in service-account.json.enc -out service-account.json -d
   # Installing the Google Cloud SDK
-  - curl https://skd.cloud.google.com | bash > /dev/null;
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
   # Customize the current shell
   - source $HOME/google-cloud-sdk/path.bash.inc
   # Update the gcloud kubectl cli
   - gcloud components update kubectl
   # Authorize GC SDK with the service account
   - gcloud auth activate-service-account --key-file service-account.json
+  # Congifure project zone for GC CLI
+  - gcloud config set project multi-k8s-264817
+  - gcloud config set compute/zone europe-west3-a
+  # Configure the K8s cluster for GC CLI
+  - gcloud container clusters get-credentials multi-cluster
+  # Log in to Docker Hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Build the test image
+  - docker build -t gpsolinski/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  # Run tests
+  - docker run -e CI=true gpsolinski/react-test yarn test
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
