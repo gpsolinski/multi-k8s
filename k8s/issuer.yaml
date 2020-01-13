@@ -9,10 +9,10 @@ spec:
     # Email address used for ACME registration
     email: 'gpsolinski@gmail.com'
     # This is not our secret key, only a secret key that LetsEncrypt sends us in the verification process (ACME account secret key)
-    privateSecretKeyRef:
+    privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
-        # We want to go through the http way of obtaining the certificate
+      # We want to go through the http way of obtaining the certificate
       - http01:
-        ingress:
-          class: nginx
+          ingress:
+            class: nginx
